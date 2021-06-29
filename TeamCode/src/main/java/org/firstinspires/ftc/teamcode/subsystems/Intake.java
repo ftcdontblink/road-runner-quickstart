@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-public class Intake  {
+public class Intake implements Subsystem {
     Robot robot;
     DcMotor motor1;
     DcMotor motor2;

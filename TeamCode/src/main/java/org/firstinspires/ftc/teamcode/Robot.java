@@ -7,10 +7,17 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.Wobble;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class Robot {
+    List<Subsystem> subsystems = new ArrayList<>();
+
     public HardwareMap hwMap;
     public SampleMecanumDrive drive;
     public Intake intake;
@@ -22,6 +29,16 @@ public class Robot {
     public Gamepad gamepad2;
 
     public Robot(HardwareMap hwMap) {
+        initAll(hwMap);
+    }
+
+    public void Robot(HardwareMap hwMap, Gamepad gamepad1, Gamepad gamepad2) {
+        initAll(hwMap);
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+    }
+
+    public void initAll(HardwareMap hwMap) {
         this.hwMap = hwMap;
         drive = new SampleMecanumDrive(hwMap);
         mecanumDrive = new MecanumDrive(this);
@@ -29,15 +46,21 @@ public class Robot {
         turret = new Turret(this);
         intake = new Intake(this);
         shooter = new Shooter(this);
+
+        addAll();
     }
 
-    public void Robot(HardwareMap hwMap, Gamepad gamepad1, Gamepad gamepad2) {
-        this.hwMap = hwMap;
-        this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
+    public void addAll() {
+        Collections.addAll(
+                subsystems,
+                wobble,
+                mecanumDrive,
+                turret,
+                intake
+        );
     }
 
     public void update() {
-
+        for(Subsystem s : subsystems) s.update();
     }
 }

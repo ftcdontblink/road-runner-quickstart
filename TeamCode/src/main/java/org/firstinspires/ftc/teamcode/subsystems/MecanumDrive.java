@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.subclasses.PoseStorage;
 
-public class MecanumDrive {
+public class MecanumDrive implements Subsystem {
     Robot robot;
     SampleMecanumDrive drive;
 

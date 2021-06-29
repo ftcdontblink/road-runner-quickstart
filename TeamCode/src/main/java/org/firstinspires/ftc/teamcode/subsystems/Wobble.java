@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-public class Wobble {
+import java.util.Collection;
+
+public class Wobble implements Subsystem {
     Robot robot;
     Servo arm1;
     Servo arm2;

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
-public class Turret {
+public class Turret implements Subsystem {
     Robot robot;
     DcMotor turretMotor;
 

@@ -31,13 +31,15 @@ public class MecanumDrive implements Subsystem {
 
     private Mode currentMode = Mode.NORMAL_CONTROL;
 
+    public double theta = 0;
+
     // Declare a PIDF Controller to regulate heading
     // Use the same gains as SampleMecanumDrive's heading controller
     private PIDFController headingController = new PIDFController(SampleMecanumDrive.HEADING_PID);
 
     // Declare a target vector you'd like your bot to align with
     // Can be any x/y coordinate of your choosing
-    public Vector2d targetPosition;
+    public Vector2d targetPosition = new Vector2d(72, 36);
 
     public MecanumDrive(Robot robot) {
         this.robot = robot;
@@ -60,6 +62,10 @@ public class MecanumDrive implements Subsystem {
         // Declare a drive direction
         // Pose representing desired x, y, and angular velocity
         Pose2d driveDirection = new Pose2d();
+
+        Vector2d difference = targetPosition.minus(poseEstimate.vec());
+        // Obtain the target angle for feedback and derivative for feedforward
+        theta = difference.angle();
 
         switch (currentMode) {
             case NORMAL_CONTROL:
@@ -91,9 +97,7 @@ public class MecanumDrive implements Subsystem {
                 Vector2d robotFrameInput = fieldFrameInput.rotated(-poseEstimate.getHeading());
 
                 // Difference between the target vector and the bot's position
-                Vector2d difference = targetPosition.minus(poseEstimate.vec());
-                // Obtain the target angle for feedback and derivative for feedforward
-                double theta = difference.angle();
+
 
                 // Not technically omega because its power. This is the derivative of atan2
                 double thetaFF = -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
@@ -123,8 +127,8 @@ public class MecanumDrive implements Subsystem {
         // Update the heading controller with our current heading
         headingController.update(poseEstimate.getHeading());
 
-        // Update he localizer
-        drive.getLocalizer().update();
+        // changing just localizer to auto as well so its nice and ez
+        drive.update();
 
     }
 }

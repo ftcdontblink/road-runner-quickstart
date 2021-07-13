@@ -32,7 +32,7 @@ public class Robot {
         initAll(hwMap);
     }
 
-    public void Robot(HardwareMap hwMap, Gamepad gamepad1, Gamepad gamepad2) {
+    public Robot(HardwareMap hwMap, Gamepad gamepad1, Gamepad gamepad2) {
         initAll(hwMap);
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
@@ -40,10 +40,10 @@ public class Robot {
 
     public void initAll(HardwareMap hwMap) {
         this.hwMap = hwMap;
-        drive = new SampleMecanumDrive(hwMap);
-        mecanumDrive = new MecanumDrive(this);
-        wobble = new Wobble(this);
-        turret = new Turret(this);
+//        drive = new SampleMecanumDrive(hwMap);
+//        mecanumDrive = new MecanumDrive(this);
+//        wobble = new Wobble(this);
+//        turret = new Turret(this);
         intake = new Intake(this);
         shooter = new Shooter(this);
 
@@ -53,10 +53,11 @@ public class Robot {
     public void addAll() {
         Collections.addAll(
                 subsystems,
-                wobble,
-                mecanumDrive,
-                turret,
-                intake
+//                wobble,
+//                mecanumDrive,
+//                turret,
+                intake,
+                shooter
         );
     }
 

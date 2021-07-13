@@ -14,6 +14,8 @@
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'kotlin-android'
+
 
 dependencies {
     implementation project(':FtcRobotController')
@@ -25,4 +27,9 @@ dependencies {
     implementation "com.noahbres.jotai:jotai:1.0.2"
     implementation 'org.ftclib.ftclib:vision:1.2.0' // vision
     implementation 'org.ftclib.ftclib:core:1.2.0' // core
+
+    implementation 'org.openftc:easyopencv:1.4.4'
+
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }

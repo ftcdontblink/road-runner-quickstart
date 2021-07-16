@@ -1,23 +1,40 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.util.Angle;
-import com.arcrobotics.ftclib.controller.PIDFController;
+
+import com.acmerobotics.roadrunner.util.NanoClock;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.subclasses.ModifiedPIDFController;
+import org.firstinspires.ftc.teamcode.subsystems.subclasses.PoseStorage;
 
+@Config
 public class Turret implements Subsystem {
     Robot robot;
     DcMotor turretMotor;
+    public static double angle = 2;
+    public static double currentPosition = 0;
+    public static double x = 0;
+    public static double y = 0;
+    public static double heading = 0;
 
-    public final double TICKS = 537.6;
+    public final double TICKS = 28*13.7;
     public final double RATIO = 72.0/24.0;
-    public final double TICKS_TO_RAD = (TICKS*RATIO)/(2*Math.PI);
-    public final double TICKS_TO_DEG = (TICKS*RATIO)/(360);
+    public final double PI = Math.PI;
     public static double OFFSET = 0;
 
-    PIDFController turretController;
+    ModifiedPIDFController turretController;
+    public static PIDCoefficients coefficients = new PIDCoefficients(0.01, 0, 0);
+    public static double integralBand = 0.7;
 
     public static double kP = 0;
     public static double kI = 0;
@@ -28,24 +45,28 @@ public class Turret implements Subsystem {
         this.robot = robot;
         turretMotor = robot.hwMap.get(DcMotor.class, "turret");
 
-        turretController = new PIDFController(kP, kI, kD, kF);
-        turretController.setTolerance(Math.toRadians(0.5));
+        turretController = new ModifiedPIDFController(coefficients, 0.7);
     }
 
-    public void update() {
-        double targetAngle = Angle.normDelta(robot.mecanumDrive.theta);
-        double currentAngle = ticksToRad(turretMotor.getCurrentPosition()) + OFFSET;
+    public Turret(HardwareMap map) {
+        turretMotor = map.get(DcMotor.class, "turret");
 
-        double output = turretController.calculate(currentAngle, targetAngle);
-
-        turretMotor.setPower(output);
+        turretController = new ModifiedPIDFController(coefficients, 0.7);
     }
 
     public double ticksToRad(double ticks) {
-        return TICKS_TO_RAD*ticks;
+        return 2*PI * (ticks / (TICKS*RATIO));
     }
 
     public double ticksToDeg(double ticks) {
-        return TICKS_TO_DEG*ticks;
+        return Math.toDegrees(ticksToRad(ticks));
+    }
+
+    @Override
+    public void update() {
+        currentPosition = ticksToRad(turretMotor.getCurrentPosition());
+
+        turretController.setTargetPosition(angle);
+        turretController.update(currentPosition);
     }
 }

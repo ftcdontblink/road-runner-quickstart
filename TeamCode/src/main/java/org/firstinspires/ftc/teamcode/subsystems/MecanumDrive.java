@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.graphics.Point;
+
 import com.acmerobotics.roadrunner.control.PIDFController;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.util.Angle;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
@@ -33,6 +37,8 @@ public class MecanumDrive implements Subsystem {
 
     public double theta = 0;
 
+    Vector2d target = new Vector2d(72, 36);
+
     // Declare a PIDF Controller to regulate heading
     // Use the same gains as SampleMecanumDrive's heading controller
     private PIDFController headingController = new PIDFController(SampleMecanumDrive.HEADING_PID);
@@ -57,79 +63,109 @@ public class MecanumDrive implements Subsystem {
     }
 
     public void update() {
+
         Pose2d poseEstimate = drive.getLocalizer().getPoseEstimate();
+        Vector2d shooterPose = new Vector2d(5, -1.5).rotated(-poseEstimate.getHeading());
+        Vector2d finalPose = poseEstimate.vec().plus(shooterPose);
+        Double targetAngle = targetPosition.minus(finalPose).angle();
+        robot.telemetry.addData("Angle", targetAngle);
+        robot.telemetry.addData("Angle (Deg)", Math.toDegrees(targetAngle));
 
-        // Declare a drive direction
-        // Pose representing desired x, y, and angular velocity
-        Pose2d driveDirection = new Pose2d();
+        double robotAngle = poseEstimate.getHeading();
+        double angleError = targetAngle - robotAngle;
 
-        Vector2d difference = targetPosition.minus(poseEstimate.vec());
-        // Obtain the target angle for feedback and derivative for feedforward
-        theta = difference.angle();
+        angleError = Math.toDegrees(Angle.normDelta(angleError));
 
-        switch (currentMode) {
-            case NORMAL_CONTROL:
-                // Switch into alignment mode if `a` is pressed
-                if (robot.gamepad1.a) {
-                    currentMode = Mode.ALIGN_TO_POINT;
-                }
+        angleError = Range.clip(angleError, -45, 45);
 
-                // Standard teleop control
-                // Convert gamepad input into desired pose velocity
-                driveDirection = new Pose2d(
-                        -robot.gamepad1.left_stick_y,
-                        -robot.gamepad1.left_stick_x,
-                        -robot.gamepad1.right_stick_x
-                );
-                break;
-            case ALIGN_TO_POINT:
-                // Switch back into normal driver control mode if `b` is pressed
-                if (robot.gamepad1.b) {
-                    currentMode = Mode.NORMAL_CONTROL;
-                }
+//        robot.turret.setAngle(-angleError);
 
-                // Create a vector from the gamepad x/y inputs which is the field relative movement
-                // Then, rotate that vector by the inverse of that heading for field centric control
-                Vector2d fieldFrameInput = new Vector2d(
-                        -robot.gamepad1.left_stick_y,
-                        -robot.gamepad1.left_stick_x
-                );
-                Vector2d robotFrameInput = fieldFrameInput.rotated(-poseEstimate.getHeading());
-
-                // Difference between the target vector and the bot's position
+        robot.telemetry.addData("Angle error", angleError);
+        robot.telemetry.addData("Angle error (Deg)", Math.toDegrees(angleError));
 
 
-                // Not technically omega because its power. This is the derivative of atan2
-                double thetaFF = -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
-
-                // Set the target heading for the heading controller to our desired angle
-                headingController.setTargetPosition(theta);
-
-                // Set desired angular velocity to the heading controller output + angular
-                // velocity feedforward
-                double headingInput = (headingController.update(poseEstimate.getHeading())
-                        * DriveConstants.kV + thetaFF)
-                        * DriveConstants.TRACK_WIDTH;
-
-                // Combine the field centric x/y velocity with our derived angular velocity
-                driveDirection = new Pose2d(
-                        robotFrameInput,
-                        headingInput
-                );
 
 
-                break;
-        }
+//
+//        // Declare a drive direction
+//        // Pose representing desired x, y, and angular velocity
+//        Pose2d driveDirection = new Pose2d();
+//
+//        Vector2d difference = targetPosition.minus(poseEstimate.vec());
+//        // Obtain the target angle for feedback and derivative for feedforward
+//        theta = difference.angle();
+//
+//        switch (currentMode) {
+//            case NORMAL_CONTROL:
+//                // Switch into alignment mode if `a` is pressed
+//                if (robot.gamepad1.a) {
+//                    currentMode = Mode.ALIGN_TO_POINT;
+//                }
+//
+//                // Standard teleop control
+//                // Convert gamepad input into desired pose velocity
+//                driveDirection = new Pose2d(
+//                        -robot.gamepad1.left_stick_y,
+//                        -robot.gamepad1.left_stick_x,
+//                        -robot.gamepad1.right_stick_x
+//                );
+//                break;
+//            case ALIGN_TO_POINT:
+//                // Switch back into normal driver control mode if `b` is pressed
+//                if (robot.gamepad1.b) {
+//                    currentMode = Mode.NORMAL_CONTROL;
+//                }
+//
+//                // Create a vector from the gamepad x/y inputs which is the field relative movement
+//                // Then, rotate that vector by the inverse of that heading for field centric control
+//                Vector2d fieldFrameInput = new Vector2d(
+//                        -robot.gamepad1.left_stick_y,
+//                        -robot.gamepad1.left_stick_x
+//                );
+//                Vector2d robotFrameInput = fieldFrameInput.rotated(-poseEstimate.getHeading());
+//
+//                // Difference between the target vector and the bot's position
+//
+//
+//                // Not technically omega because its power. This is the derivative of atan2
+//                double thetaFF = -fieldFrameInput.rotated(-Math.PI / 2).dot(difference) / (difference.norm() * difference.norm());
+//
+//                // Set the target heading for the heading controller to our desired angle
+//                headingController.setTargetPosition(theta);
+//
+//                // Set desired angular velocity to the heading controller output + angular
+//                // velocity feedforward
+//                double headingInput = (headingController.update(poseEstimate.getHeading())
+//                        * DriveConstants.kV + thetaFF)
+//                        * DriveConstants.TRACK_WIDTH;
+//
+//                // Combine the field centric x/y velocity with our derived angular velocity
+//                driveDirection = new Pose2d(
+//                        robotFrameInput,
+//                        headingInput
+//                );
+//
+//
+//                break;
+//        }
+//
+//
+//        drive.setWeightedDrivePower(driveDirection);
+//
+//        // Update the heading controller with our current heading
+//        headingController.update(poseEstimate.getHeading());
+//
+//        // changing just localizer to auto as well so its nice and ez
+//        drive.update();
 
 
-        drive.setWeightedDrivePower(driveDirection);
+        drive.setWeightedDrivePower(new Pose2d(
+                -robot.gamepad1.left_stick_y,
+                -robot.gamepad1.left_stick_x,
+                -robot.gamepad1.right_stick_x
+        ));
 
-        // Update the heading controller with our current heading
-        headingController.update(poseEstimate.getHeading());
-
-        // changing just localizer to auto as well so its nice and ez
         drive.update();
-
     }
 }
 

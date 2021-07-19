@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDrive;
@@ -27,6 +28,7 @@ public class Robot {
     public Wobble wobble;
     public Gamepad gamepad1;
     public Gamepad gamepad2;
+    public Telemetry telemetry;
 
     public Robot(HardwareMap hwMap) {
         initAll(hwMap);
@@ -38,12 +40,19 @@ public class Robot {
         this.gamepad2 = gamepad2;
     }
 
+    public Robot(HardwareMap hwMap, Gamepad gamepad1, Gamepad gamepad2, Telemetry telemetry) {
+        initAll(hwMap);
+        this.gamepad1 = gamepad1;
+        this.gamepad2 = gamepad2;
+        this.telemetry = telemetry;
+    }
+
     public void initAll(HardwareMap hwMap) {
         this.hwMap = hwMap;
-//        drive = new SampleMecanumDrive(hwMap);
-//        mecanumDrive = new MecanumDrive(this);
+        drive = new SampleMecanumDrive(hwMap);
+        mecanumDrive = new MecanumDrive(this);
 //        wobble = new Wobble(this);
-//        turret = new Turret(this);
+        turret = new Turret(this);
         intake = new Intake(this);
         shooter = new Shooter(this);
 
@@ -54,8 +63,8 @@ public class Robot {
         Collections.addAll(
                 subsystems,
 //                wobble,
-//                mecanumDrive,
-//                turret,
+                mecanumDrive,
+                turret,
                 intake,
                 shooter
         );
@@ -63,5 +72,6 @@ public class Robot {
 
     public void update() {
         for(Subsystem s : subsystems) s.update();
+        telemetry.update();
     }
 }

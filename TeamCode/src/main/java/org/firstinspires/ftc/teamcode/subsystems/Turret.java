@@ -44,6 +44,7 @@ public class Turret implements Subsystem {
 
 
     ElapsedTime timer;
+    public static double value;
     double currentTime;
 
 
@@ -64,6 +65,7 @@ public class Turret implements Subsystem {
 
         turretController = new PIDFController(coeffs.p, coeffs.i, coeffs.d, coeffs.f);
         turretController.setTolerance(0.5);
+        value = 0;
     }
 
     public Turret(HardwareMap map) {
@@ -82,7 +84,7 @@ public class Turret implements Subsystem {
     public void update() {
 //        currentTime = timer.milliseconds();
 ////
-        double value = (Math.PI*2) * (turretMotor.getCurrentPosition() / (double)(28*26.9*3));
+        value = (Math.PI*2) * (turretMotor.getCurrentPosition() / (double)(28*26.9*3));
         value = Math.toDegrees(value);
 //
 //        if(value < -180) value += 360;

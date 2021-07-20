@@ -55,9 +55,9 @@ public class SampleTele extends LinearOpMode {
 
         while (opModeIsActive()) {
             double angle = pipeline.calculateYaw(UGAngleHighGoalPipeline.Target.BLUE);
-//            tele.addData("angle", angle);
-//            tele.update();
-//            robot.turret.setAngle(angle);
+            tele.addData("angle", angle);
+            tele.update();
+            robot.turret.setAngle(angle);
             robot.update();
         }
     }
